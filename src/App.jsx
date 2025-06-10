@@ -1,5 +1,6 @@
 // src/App.jsx
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL =
+  import.meta.env.VITE_API_URL || "https://factura-backend-7ehi.onrender.com";
 console.log("🛠️ API_URL =", API_URL);
 import React, { useState } from "react";
 import axios from "axios";
