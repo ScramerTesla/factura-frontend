@@ -1,5 +1,6 @@
 // src/App.jsx
 const API_URL = import.meta.env.VITE_API_URL;
+console.log("🛠️ API_URL =", API_URL);
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -29,8 +30,7 @@ export default function App() {
       } catch (error) {
         console.error("Error comparando tarifas:", error);
       }
-      console.log("🛠 Enviando PDF a:", `${API_URL}/analizar-factura`);
-    } catch (error) {
+         } catch (error) {
   console.error("🔴 Error analizando la factura:", error.response || error);
   setResultado({ error: error.response?.data?.detail || error.message });
 }
