@@ -1,8 +1,7 @@
-// src/App.jsx
 import React, { useState } from "react";
 import axios from "axios";
 
-// Forzamos la URL directa de producción
+// URL fija a tu backend en Render:
 const API_URL = "https://factura-backend-7ehi.onrender.com";
 console.log("🛠️  API_URL =", API_URL);
 
