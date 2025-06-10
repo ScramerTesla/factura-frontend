@@ -29,11 +29,12 @@ export default function App() {
       } catch (error) {
         console.error("Error comparando tarifas:", error);
       }
-
+      console.log("🛠 Enviando PDF a:", `${API_URL}/analizar-factura`);
     } catch (error) {
-      console.error("Error analizando la factura:", error);
-      setResultado({ error: "Error al analizar el archivo." });
-    } finally {
+  console.error("🔴 Error analizando la factura:", error.response || error);
+  setResultado({ error: error.response?.data?.detail || error.message });
+}
+ finally {
       setLoading(false);
     }
   };
