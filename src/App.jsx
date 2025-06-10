@@ -17,25 +17,30 @@ export default function App() {
 
     const formData = new FormData();
     formData.append("file", file);
+
     setLoading(true);
     setResultado(null);
     setRanking([]);
 
     try {
-      const response = await axios.post("http://localhost:8000/analizar-factura", formData);
+      // 1) Analizar factura
+      const response = await axios.post(
+        `${API_URL}/analizar-factura`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
       setResultado(response.data);
 
-      try {
-        const comparacion = await axios.post("http://localhost:8000/comparar-tarifas/", response.data);
-        setRanking(comparacion.data);
-      } catch (error) {
-        console.error("Error comparando tarifas:", error);
-      }
-         } catch (error) {
-  console.error("🔴 Error analizando la factura:", error.response || error);
-  setResultado({ error: error.response?.data?.detail || error.message });
-}
- finally {
+      // 2) Comparar tarifas
+      const comparacion = await axios.post(
+        `${API_URL}/comparar-tarifas/`,
+        response.data
+      );
+      setRanking(comparacion.data);
+    } catch (error) {
+      console.error("🔴 Error analizando/comparando la factura:", error);
+      setResultado({ error: error.response?.data?.detail || error.message });
+    } finally {
       setLoading(false);
     }
   };
@@ -44,7 +49,10 @@ export default function App() {
     <main className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
       <h1 className="text-2xl font-bold mb-4">Analizador de Factura Eléctrica</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full max-w-md">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded shadow-md w-full max-w-md"
+      >
         <input
           type="file"
           accept="application/pdf"
@@ -61,7 +69,7 @@ export default function App() {
 
       {loading && <p className="mt-4">Analizando factura...</p>}
 
-      {resultado && resultado.error && (
+      {resultado?.error && (
         <p className="mt-4 text-red-600">{resultado.error}</p>
       )}
 
@@ -74,12 +82,14 @@ export default function App() {
                 <strong>#{index + 1} {tarifa.tarifa}</strong><br />
                 Potencia: {tarifa.coste_potencia.toFixed(2)} €<br />
                 Energía: {tarifa.coste_energia.toFixed(2)} €<br />
-                <span className="font-bold">Total: {tarifa.coste_total.toFixed(2)} €</span>
+                <span className="font-bold">
+                  Total: {tarifa.coste_total.toFixed(2)} €
+                </span>
               </li>
             ))}
           </ul>
         </div>
       )}
     </main>
-  );
+);
 }
