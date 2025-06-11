@@ -14,7 +14,6 @@ const API_URL = "https://factura-backend-7ehi.onrender.com";
 
 export default function App() {
   const [file, setFile] = useState(null);
-  const [resultado, setResultado] = useState(null);
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,7 +24,6 @@ export default function App() {
     e.preventDefault();
     if (!file) return;
     setError("");
-    setResultado(null);
     setRanking([]);
     setLoading(true);
 
@@ -33,18 +31,15 @@ export default function App() {
     formData.append("file", file);
 
     try {
-      // 1) Analizar factura
       const resp = await axios.post(
         `${API_URL}/analizar-factura`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-      // 2) Comparar tarifas
       const cmp = await axios.post(
         `${API_URL}/comparar-tarifas/`,
         resp.data
       );
-      setResultado(resp.data);
       setRanking(cmp.data);
     } catch (err) {
       console.error(err);
@@ -54,58 +49,60 @@ export default function App() {
     }
   };
 
-  // Filtrar y ordenar resultados
+  // Filtrar y ordenar
   const mostrar = ranking
-    .filter((t) =>
-      t.tarifa.toLowerCase().includes(filter.trim().toLowerCase())
-    )
+    .filter((t) => t.tarifa.toLowerCase().includes(filter.trim().toLowerCase()))
     .sort((a, b) => a[sortKey] - b[sortKey]);
 
   return (
     <main className="min-h-screen flex flex-col items-center p-6">
-      {/* Header con iconos centrados */}
-      <header className="flex items-center justify-center space-x-4 mb-8">
-        {/* Icono de factura */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-8 w-8 text-blue-600"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"
-          />
-        </svg>
+      {/* Header centrado */}
+      <header className="flex items-center justify-center space-x-2 mb-8">
+        {/* Icono factura pequeño */}
+        <div className="h-6 w-6 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-blue-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"
+            />
+          </svg>
+        </div>
         <h1 className="text-3xl font-semibold text-gray-800">
           Comparador de Tarifas
         </h1>
-        {/* Icono de rayo */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-8 w-8 text-yellow-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
-        </svg>
+        {/* Icono rayo pequeño */}
+        <div className="h-6 w-6 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-yellow-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            />
+          </svg>
+        </div>
       </header>
 
-      {/* Formulario de subida */}
+      {/* Formulario */}
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-lg bg-white p-6 rounded-2xl shadow-lg mb-8"
       >
-        <label className="block text-gray-700 font-medium mb-2">
+        <label className="block mb-2 font-medium text-gray-700">
           Sube tu factura (PDF):
         </label>
         <input
@@ -127,9 +124,9 @@ export default function App() {
         <p className="text-red-600 mb-6 font-semibold">{error}</p>
       )}
 
-      {ranking.length > 0 && (
+      {mostrar.length > 0 && (
         <>
-          {/* Controles de búsqueda y orden */}
+          {/* Controles */}
           <div className="w-full max-w-4xl flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
             <input
               type="text"
@@ -148,7 +145,7 @@ export default function App() {
             </select>
           </div>
 
-          {/* Gráfica de barras */}
+          {/* Gráfica */}
           <div className="w-full max-w-4xl bg-white p-4 rounded-xl shadow-lg mb-8 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={mostrar}>
@@ -160,7 +157,7 @@ export default function App() {
             </ResponsiveContainer>
           </div>
 
-          {/* Tarjetas de resultados */}
+          {/* Tarjetas */}
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-4xl w-full">
             {mostrar.map((t, i) => (
               <div
@@ -193,5 +190,5 @@ export default function App() {
         </>
       )}
     </main>
-);
+  );
 }
