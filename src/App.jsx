@@ -9,7 +9,6 @@ import {
   Tooltip
 } from "recharts";
 
-// URL fija de tu backend en Render:
 const API_URL = "https://factura-backend-7ehi.onrender.com";
 
 export default function App() {
@@ -54,85 +53,53 @@ export default function App() {
     .sort((a, b) => a[sortKey] - b[sortKey]);
 
   return (
-    <main className="min-h-screen flex flex-col items-center p-6 bg-gradient-to-br from-blue-100 to-yellow-100">
-      {/* Header centrado con SVGs de tamaño fijo */}
-      <header className="flex items-center justify-center space-x-4 mb-8">
-        {/* Icono factura */}
-        <svg
-          style={{ width: 24, height: 24 }}
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"
-          />
-        </svg>
-        <h1 className="text-3xl font-semibold text-gray-800">
-          Comparador de Tarifas
-        </h1>
-        {/* Icono rayo */}
-        <svg
-          style={{ width: 24, height: 24 }}
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
-        </svg>
-      </header>
+    <main className="w-full max-w-4xl mx-auto p-6">
+      {/* Título centrado */}
+      <h1 className="text-center text-4xl font-bold text-gray-800 mb-8">
+        Comparador de Tarifas Eléctricas
+      </h1>
 
-      {/* Formulario de factura */}
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg bg-white p-6 rounded-2xl shadow-lg mb-8"
-      >
-        <label className="block mb-2 font-medium text-gray-700">
-          Sube tu factura (PDF):
-        </label>
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={(e) => setFile(e.target.files[0])}
-          className="block w-full border border-gray-300 rounded px-3 py-2 mb-4"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-blue-500 to-green-400 text-white py-2 rounded-full hover:from-blue-600 hover:to-green-500 transition"
-        >
-          {loading ? "Procesando..." : "Analizar Factura"}
-        </button>
-      </form>
-
-      {error && (
-        <p className="text-red-600 mb-6 font-semibold">{error}</p>
-      )}
+      {/* Tarjeta de Formulario */}
+      <div className="bg-white bg-opacity-90 backdrop-blur-md p-8 rounded-2xl shadow-lg mb-8">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block mb-2 font-medium text-gray-700">
+              Sube tu factura (PDF):
+            </label>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="block w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition"
+          >
+            {loading ? "Procesando…" : "Analizar Factura"}
+          </button>
+        </form>
+        {error && (
+          <p className="mt-4 text-center text-red-600 font-semibold">{error}</p>
+        )}
+      </div>
 
       {mostrar.length > 0 && (
         <>
-          {/* Controles de búsqueda y orden */}
-          <div className="w-full max-w-4xl flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+          {/* Controles */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-between mb-6">
             <input
               type="text"
               placeholder="🔍 Buscar tarifa…"
-              className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
               onChange={(e) => setFilter(e.target.value)}
             />
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value)}
-              className="border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             >
               <option value="coste_total">Ordenar por Total</option>
               <option value="coste_energia">Ordenar por Energía</option>
@@ -140,34 +107,35 @@ export default function App() {
             </select>
           </div>
 
-          {/* Gráfica de barras */}
-          <div className="w-full max-w-4xl bg-white p-4 rounded-xl shadow-lg mb-8 h-64">
+          {/* Gráfica */}
+          <div className="bg-white bg-opacity-90 backdrop-blur-md p-4 rounded-xl shadow-lg mb-8 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={mostrar}>
                 <XAxis dataKey="tarifa" tick={{ fontSize: 12 }} />
                 <YAxis />
                 <Tooltip formatter={(v) => `${v.toFixed(2)} €`} />
-                <Bar dataKey="coste_total" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="coste_total" fill="#6366f1" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Tarjetas */}
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-4xl w-full">
+          {/* Tarjetas de resultados */}
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {mostrar.map((t, i) => (
               <div
                 key={i}
                 className={`
-                  bg-white p-6 rounded-2xl shadow-xl border
+                  bg-white bg-opacity-90 backdrop-blur-md p-6 rounded-2xl shadow-xl border
                   ${i === 0 ? "border-green-500" : "border-gray-200"}
                   hover:shadow-2xl transition
                 `}
               >
-                <h2 className="text-2xl font-semibold mb-2">
+                <h2 className="text-2xl font-semibold mb-2 text-gray-800">
                   #{i + 1} {t.tarifa}
                 </h2>
                 <p className="text-gray-700 mb-4">
-                  Total: <span className="font-bold">{t.coste_total.toFixed(2)} €</span>
+                  Total:{" "}
+                  <span className="font-bold">{t.coste_total.toFixed(2)} €</span>
                 </p>
                 <div className="space-y-2 text-gray-600">
                   <div className="flex justify-between">
