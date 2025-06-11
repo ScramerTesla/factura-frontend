@@ -42,12 +42,15 @@ export default function App() {
         enlace: t.enlace,
       }));
       setRanking(conFijos);
-    } catch (err) {
-      console.error(err);
-      setError("Error al procesar la factura.");
+        } catch (err) {
+      // Extrae el detalle concreto que envía FastAPI
+      const detail = err.response?.data?.detail || err.message;
+      console.error("🔴 Error desde el backend:", detail);
+      setError(detail);
     } finally {
       setLoading(false);
     }
+
   };
 
   return (
