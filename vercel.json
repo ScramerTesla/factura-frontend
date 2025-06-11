@@ -1,12 +1,6 @@
 {
   "rewrites": [
-    {
-      "source": "/analizar-factura",
-      "destination": "https://factura-backend-7ehi.onrender.com/analizar-factura"
-    },
-    {
-      "source": "/comparar-tarifas",
-      "destination": "https://factura-backend-7ehi.onrender.com/comparar-tarifas/"
-    }
+    { "source": "/analizar-factura", "destination": "https://factura-backend-7ehi.onrender.com/analizar-factura" },
+    { "source": "/comparar-tarifas/", "destination": "https://factura-backend-7ehi.onrender.com/comparar-tarifas" }
   ]
 }
