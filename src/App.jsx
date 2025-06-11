@@ -25,7 +25,7 @@ export default function App() {
     formData.append("file", file);
 
     try {
-      // 1) Analizar factura usando proxy
+      // 1) Analizar factura (proxy a /analizar-factura)
       const { data } = await axios.post("/analizar-factura", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -33,9 +33,8 @@ export default function App() {
       setImpuesto(data.factura_impuesto);
       setAlquiler(data.factura_alquiler);
 
-      // 2) Comparar tarifas usando proxy
-      const { data: cmp } = await axios.post("/comparar-tarifas", data);
-      // Sumamos costes fijos a cada tarifa
+      // 2) Comparar tarifas (proxy a /comparar-tarifas/)
+      const { data: cmp } = await axios.post("/comparar-tarifas/", data);
       const conFijos = cmp.map((t) => ({
         tarifa: t.tarifa,
         total: (t.coste_variable + data.factura_impuesto + data.factura_alquiler).toFixed(2),
@@ -54,7 +53,7 @@ export default function App() {
     <div className="p-6 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-4 text-center">Comparador de Tarifas Eléctricas</h1>
 
-      <form onSubmit={handleSubmit} className="mb-6 flex items-center">
+      <form onSubmit={handleSubmit} className="mb-6 flex items-center justify-center">
         <input
           type="file"
           accept="application/pdf"
@@ -74,17 +73,13 @@ export default function App() {
 
       {facturaTotal != null && (
         <div className="mb-4 text-center">
-          <p>
-            <strong>Este mes has pagado:</strong> {facturaTotal.toFixed(2)} €
-          </p>
-          <p>
-            <strong>Costes fijos:</strong> {(impuesto + alquiler).toFixed(2)} €
-          </p>
+          <p><strong>Este mes has pagado:</strong> {facturaTotal.toFixed(2)} €</p>
+          <p><strong>Costes fijos:</strong> {(impuesto + alquiler).toFixed(2)} €</p>
         </div>
       )}
 
       {ranking.length > 0 && (
-        <ul className="list-disc list-inside space-y-2">
+        <ul className="list-disc list-inside space-y-2 max-w-xl mx-auto">
           {ranking.map((t, i) => (
             <li key={i}>
               {t.tarifa}: {t.total} €{" "}
