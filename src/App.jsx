@@ -9,7 +9,7 @@ import {
   Tooltip
 } from "recharts";
 
-// URL fija a tu backend en Render:
+// URL fija de tu backend en Render
 const API_URL = "https://factura-backend-7ehi.onrender.com";
 
 export default function App() {
@@ -25,19 +25,21 @@ export default function App() {
     e.preventDefault();
     if (!file) return;
     setError("");
-    setRanking([]);
     setResultado(null);
+    setRanking([]);
     setLoading(true);
 
     const formData = new FormData();
     formData.append("file", file);
 
     try {
+      // 1) Analizar factura
       const resp = await axios.post(
         `${API_URL}/analizar-factura`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
+      // 2) Comparar tarifas
       const cmp = await axios.post(
         `${API_URL}/comparar-tarifas/`,
         resp.data
@@ -52,18 +54,21 @@ export default function App() {
     }
   };
 
+  // Filtrar y ordenar resultados
   const mostrar = ranking
-    .filter((t) => t.tarifa.toLowerCase().includes(filter.trim().toLowerCase()))
+    .filter((t) =>
+      t.tarifa.toLowerCase().includes(filter.trim().toLowerCase())
+    )
     .sort((a, b) => a[sortKey] - b[sortKey]);
 
   return (
     <main className="min-h-screen flex flex-col items-center p-6">
-      {/* Encabezado con iconos */}
-      <header className="flex items-center space-x-4 mb-8">
-        {/* Icono factura */}
+      {/* Header con iconos centrados */}
+      <header className="flex items-center justify-center space-x-4 mb-8">
+        {/* Icono de factura */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10 text-blue-600"
+          className="h-8 w-8 text-blue-600"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -75,13 +80,13 @@ export default function App() {
             d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"
           />
         </svg>
-        <h1 className="text-4xl font-semibold text-gray-800">
+        <h1 className="text-3xl font-semibold text-gray-800">
           Comparador de Tarifas
         </h1>
-        {/* Icono rayo */}
+        {/* Icono de rayo */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10 text-yellow-500"
+          className="h-8 w-8 text-yellow-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -95,7 +100,7 @@ export default function App() {
         </svg>
       </header>
 
-      {/* Formulario */}
+      {/* Formulario de subida */}
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-lg bg-white p-6 rounded-2xl shadow-lg mb-8"
@@ -124,7 +129,7 @@ export default function App() {
 
       {ranking.length > 0 && (
         <>
-          {/* Controles */}
+          {/* Controles de búsqueda y orden */}
           <div className="w-full max-w-4xl flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
             <input
               type="text"
@@ -143,7 +148,7 @@ export default function App() {
             </select>
           </div>
 
-          {/* Gráfica */}
+          {/* Gráfica de barras */}
           <div className="w-full max-w-4xl bg-white p-4 rounded-xl shadow-lg mb-8 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={mostrar}>
@@ -155,7 +160,7 @@ export default function App() {
             </ResponsiveContainer>
           </div>
 
-          {/* Tarjetas */}
+          {/* Tarjetas de resultados */}
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-4xl w-full">
             {mostrar.map((t, i) => (
               <div
@@ -170,10 +175,7 @@ export default function App() {
                   #{i + 1} {t.tarifa}
                 </h2>
                 <p className="text-gray-700 mb-4">
-                  Total:{" "}
-                  <span className="font-bold">
-                    {t.coste_total.toFixed(2)} €
-                  </span>
+                  Total: <span className="font-bold">{t.coste_total.toFixed(2)} €</span>
                 </p>
                 <div className="space-y-2 text-gray-600">
                   <div className="flex justify-between">
