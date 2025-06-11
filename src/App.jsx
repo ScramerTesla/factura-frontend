@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const API = "https://factura-backend-7ehi.onrender.com";
-
 export default function App() {
   const [file, setFile] = useState(null);
   const [facturaTotal, setFacturaTotal] = useState(null);
@@ -10,34 +8,43 @@ export default function App() {
   const [alquiler, setAlquiler] = useState(0);
   const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) return;
+
+    setError("");
+    setFacturaTotal(null);
+    setImpuesto(0);
+    setAlquiler(0);
+    setRanking([]);
     setLoading(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
     try {
-      // Analizar factura
-      const { data } = await axios.post(
-        `${API}/analizar-factura`,
-        (() => { const f=new FormData(); f.append("file",file); return f; })(),
-        { headers: {"Content-Type":"multipart/form-data"} }
-      );
+      // 1) Analizar factura
+      const { data } = await axios.post("/analizar-factura", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setFacturaTotal(data.factura_total);
       setImpuesto(data.factura_impuesto);
       setAlquiler(data.factura_alquiler);
 
-      // Comparar tarifas
-      const cmp = await axios.post(`${API}/comparar-tarifas/`, data);
-      // Para cada tarifa sumamos fijos
-      const conFijos = cmp.data.map(t => ({
+      // 2) Comparar tarifas
+      const { data: cmp } = await axios.post("/comparar-tarifas", data);
+      // Sumamos costes fijos a cada tarifa
+      const conFijos = cmp.map((t) => ({
         tarifa: t.tarifa,
         total: (t.coste_variable + data.factura_impuesto + data.factura_alquiler).toFixed(2),
-        enlace: t.enlace
+        enlace: t.enlace,
       }));
       setRanking(conFijos);
     } catch (err) {
       console.error(err);
-      alert("Error procesando factura");
+      setError("Error al procesar la factura.");
     } finally {
       setLoading(false);
     }
@@ -45,31 +52,50 @@ export default function App() {
 
   return (
     <div className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Comparador de Tarifas</h1>
-      <form className="mb-4" onSubmit={handleSubmit}>
-        <input type="file" accept=".pdf" onChange={e=>setFile(e.target.files[0])} />
-        <button disabled={loading} className="ml-2 bg-blue-600 text-white px-3 py-1 rounded">
+      <h1 className="text-2xl font-bold mb-4">Comparador de Tarifas Eléctricas</h1>
+
+      <form onSubmit={handleSubmit} className="mb-6">
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => setFile(e.target.files[0])}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="ml-2 bg-blue-600 text-white px-4 py-2 rounded"
+        >
           {loading ? "Procesando…" : "Analizar"}
         </button>
       </form>
 
+      {error && <p className="text-red-600 mb-4">{error}</p>}
+
       {facturaTotal != null && (
-        <p className="mb-2">
-          <strong>Este mes has pagado:</strong> {facturaTotal} €
-        </p>
+        <div className="mb-6">
+          <p>
+            <strong>Este mes has pagado:</strong> {facturaTotal.toFixed(2)} €
+          </p>
+          <p>
+            <strong>Costes fijos (impuestos + alquiler):</strong>{" "}
+            {(impuesto + alquiler).toFixed(2)} €
+          </p>
+        </div>
       )}
-      <p className="mb-4">
-        <strong>Costes fijos (impuestos + alquiler):</strong> {(impuesto+alquiler).toFixed(2)} €
-      </p>
 
       {ranking.length > 0 && (
         <ul className="list-disc list-inside space-y-2">
-          {ranking.map((t,i) => (
+          {ranking.map((t, i) => (
             <li key={i}>
               {t.tarifa}: {t.total} €{" "}
               {t.enlace && (
-                <a href={t.enlace} target="_blank" rel="noopener" className="text-blue-500 underline">
-                  [Oferta]
+                <a
+                  href={t.enlace}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  Ver oferta
                 </a>
               )}
             </li>
